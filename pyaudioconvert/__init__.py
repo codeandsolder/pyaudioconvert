@@ -8,25 +8,6 @@ import scipy.io.wavfile as wav
 
 RUN_ID = str(uuid.uuid4())[:4]
 
-# check that sox is installed
-def bool_which(program):
-
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return True
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return True
-
-    return False
-
-
 class SoxNotInstalled(Exception):
     pass
 
@@ -40,8 +21,8 @@ class OverwriteFileError(Exception):
 
 
 try:
-    assert(bool_which('sox'))
-except AssertionError:
+    assert("sox:" in subprocess.run("sox --version", capture_output=True).stdout.decode())
+except (AssertionError, FileNotFoundError):
     raise SoxNotInstalled()
 
 
@@ -56,7 +37,6 @@ def _valid_readable_file(file_path):
 
 # def _valid_audiofile(audio_file_path):
 #     return _valid_readable_file(audio_file_path)
-
 
 def _is_24bit_audio(audio_file_path):
 
